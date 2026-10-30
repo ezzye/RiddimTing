@@ -9,7 +9,7 @@ function makePattern(length=16){return {length,events:[]};}
 function makeProject(index=0){return {version:1,name:index===0?'Kingston after dark':`Untitled session ${index+1}`,bpm:80,swing:.1,master:.75,key:0,scale:'minor',octave:0,metronome:false,fx:{type:'delay',x:.4,y:.4},groups:GROUP_NAMES.map((name,g)=>({name,volume:.8,pan:0,send:g===2?.3:.12,mute:false,solo:false,pattern:1,pads:DEFAULT_SOUNDS[g].map(makePad),patterns:{'1':makePattern(32)}})),scenes:[],scene:0,song:[],songOn:false,live:false,quantize:true};}
 function demoProject(){const p=makeProject();const add=(g,pad,steps,note=0)=>steps.forEach((step,i)=>p.groups[g].patterns[1].events.push({step,pad,velocity:pad===2?.4+(i%2)*.18:.78,note,duration:g===1?.7:.25,probability:1}));add(0,0,[8,24]);add(0,1,[8,24]);add(0,2,[0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30]);add(0,3,[6,22]);add(0,5,[3,7,11,15,19,23,27,31]);add(1,0,[0,6,16,22],-12);add(1,0,[12,28],-5);add(2,0,[2,6,10,14,18,22,26,30]);p.groups[2].pads[0].pitch=-12;return p;}
 class RiddimSession{
- constructor(){this.projects=Array.from({length:9},(_,i)=>makeProject(i));this.projects[0]=demoProject();this.current=0;this.group=0;this.pad=0;this.undoStack=[];this.redoStack=[];this.clipboard=null;this.sampleData={};this.ting=null;this.view='studio';this.dirty=false;this.onchange=()=>{};this.persistTimer=null;this.storageError='';}
+ constructor(namespace=null){this.namespace=namespace;this.saveQueue=Promise.resolve();this.projects=Array.from({length:9},(_,i)=>makeProject(i));this.projects[0]=demoProject();this.current=0;this.group=0;this.pad=0;this.undoStack=[];this.redoStack=[];this.clipboard=null;this.sampleData={};this.ting=null;this.view='studio';this.dirty=false;this.onchange=()=>{};this.persistTimer=null;this.storageError='';}
  get p(){return this.projects[this.current];} get g(){return this.p.groups[this.group];} get selected(){return this.g.pads[this.pad];} get pattern(){return this.g.patterns[this.g.pattern];}
  snapshot(){return {projects:clone(this.projects),current:this.current,group:this.group,pad:this.pad,sampleData:{...this.sampleData},ting:clone(this.ting)};}
  checkpoint(){this.undoStack.push(this.snapshot());if(this.undoStack.length>40)this.undoStack.shift();this.redoStack=[];}
@@ -35,7 +35,7 @@ class RiddimSession{
  pastePattern(){if(this.clipboard)this.edit(()=>this.g.patterns[this.g.pattern]=clone(this.clipboard));}
  scaleNote(i){const scales={minor:[0,2,3,5,7,8,10],major:[0,2,4,5,7,9,11],pentatonic:[0,3,5,7,10],chromatic:[0,1,2,3,4,5,6,7,8,9,10,11],dorian:[0,2,3,5,7,9,10]};const a=scales[this.p.scale]||scales.minor;return this.p.key+12*this.p.octave+a[i%a.length]+12*Math.floor(i/a.length);}
  serialize(){return JSON.stringify({format:'riddim-private',version:1,projects:this.projects,current:this.current,samples:this.sampleData,ting:this.ting});}
- load(raw){
+ load(raw,silent=false){
   const x=JSON.parse(raw),bad=()=>{throw new Error('This project contains invalid music or control data.');};
   const number=(v,lo,hi)=>typeof v==='number'&&Number.isFinite(v)&&v>=lo&&v<=hi;
   const fxNames=['delay','reverb','distortion','chorus','filter','compressor','phaser'];
@@ -68,11 +68,20 @@ class RiddimSession{
   if(x.samples&&(typeof x.samples!=='object'||Object.keys(x.samples).length>999||Object.values(x.samples).some(s=>!s||typeof s.name!=='string'||typeof s.data!=='string'||!/^data:audio\/wav;base64,[A-Za-z0-9+/=]+$/.test(s.data))))throw new Error('The project contains an invalid audio sample.');
   if(x.samples&&JSON.stringify(x.samples).length>190000000)throw new Error('Sample archive exceeds the 128 MB audio allowance.');
   if(x.ting&&(!Array.isArray(x.ting.samples)||x.ting.samples.length!==4||x.ting.samples.some(s=>typeof s!=='string')||!['dry','echo','spring','pixie','robot'].includes(x.ting.effect)))bad();
-  if(x.ting?.config){if(JSON.stringify(x.ting.config).length>100000)bad();if(typeof window.TingRack==='function')new window.TingRack({ctx:null}).load(x.ting.config);}this.checkpoint();this.projects=x.projects;this.current=Math.max(0,Math.min(8,Number.isInteger(x.current)?x.current:0));this.sampleData=x.samples||{};this.ting=x.ting||null;this.group=0;this.pad=0;this.changed();
+  if(x.ting?.config){if(JSON.stringify(x.ting.config).length>100000)bad();if(typeof window.TingRack==='function')new window.TingRack({ctx:null}).load(x.ting.config);}if(!silent)this.checkpoint();this.projects=x.projects;this.current=Math.max(0,Math.min(8,Number.isInteger(x.current)?x.current:0));this.sampleData=x.samples||{};this.ting=x.ting||null;this.group=0;this.pad=0;if(!silent)this.changed();
  }
- async save(){try{localStorage.setItem('riddim-session',JSON.stringify({projects:this.projects,current:this.current,version:1}));await this.dbPut('samples',this.sampleData);this.dirty=false;this.storageError='';}catch(e){this.storageError='Autosave failed. Export a project backup.';}document.dispatchEvent(new CustomEvent('riddim-save'));}
- async init(){try{const raw=localStorage.getItem('riddim-session');if(raw){const x=JSON.parse(raw);if(x.projects?.length===9){this.projects=x.projects;this.current=x.current||0;}}this.sampleData=await this.dbGet('samples')||{};}catch(e){this.storageError='Saved session unavailable. Export backups to keep your music safe.';}}
- async database(){return new Promise((ok,no)=>{if(!window.indexedDB)return no(new Error('IndexedDB unavailable'));const r=indexedDB.open('riddim-private',1);r.onupgradeneeded=()=>r.result.createObjectStore('data');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);});}
+ async save(){
+  if(this.namespace){if(this.storageUnavailable){this.storageError=this.storageError||'Snapshot storage unavailable. Autosave is disabled; export a project backup.';document.dispatchEvent(new CustomEvent('riddim-save'));return false;}const bundle=this.serialize();const operation=this.saveQueue.then(async()=>{try{await this.dbPut('workspace',bundle);this.dirty=false;this.storageError='';return true;}catch(e){this.storageError='Autosave failed. Export a project backup.';return false;}finally{document.dispatchEvent(new CustomEvent('riddim-save'));}});this.saveQueue=operation;return operation;}
+  try{localStorage.setItem('riddim-session',JSON.stringify({projects:this.projects,current:this.current,version:1}));await this.dbPut('samples',this.sampleData);this.dirty=false;this.storageError='';}catch(e){this.storageError='Autosave failed. Export a project backup.';}document.dispatchEvent(new CustomEvent('riddim-save'));
+ }
+ async init(embedded=null){
+  if(this.namespace){let existing,readFailed=false;try{existing=await this.dbGet('workspace');}catch(e){readFailed=true;this.storageUnavailable=true;this.storageError='Saved snapshot could not be read. Autosave is disabled; export a project backup.';}
+   if(existing!==undefined&&existing!==null){try{this.load(existing,true);return true;}catch(e){this.storageUnavailable=true;this.storageError='Saved snapshot is invalid. Autosave is disabled; export a project backup.';if(embedded)this.load(embedded,true);return false;}}
+   if(embedded){this.load(embedded,true);if(!readFailed)await this.save();}return false;
+  }
+  try{const raw=localStorage.getItem('riddim-session');if(raw){const x=JSON.parse(raw);if(x.projects?.length===9){this.projects=x.projects;this.current=x.current||0;}}this.sampleData=await this.dbGet('samples')||{};}catch(e){this.storageError='Saved session unavailable. Export backups to keep your music safe.';}
+ }
+ async database(){return new Promise((ok,no)=>{if(!window.indexedDB)return no(new Error('IndexedDB unavailable'));const r=indexedDB.open(this.namespace?'riddim-private-'+this.namespace:'riddim-private',1);r.onupgradeneeded=()=>r.result.createObjectStore('data');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);});}
  async dbGet(key){const db=await this.database();return new Promise((ok,no)=>{const r=db.transaction('data').objectStore('data').get(key);r.onsuccess=()=>{db.close();ok(r.result);};r.onerror=()=>{db.close();no(r.error);};});}
  async dbPut(key,value){const db=await this.database();return new Promise((ok,no)=>{const t=db.transaction('data','readwrite');t.objectStore('data').put(value,key);t.oncomplete=()=>{db.close();ok();};t.onerror=()=>{db.close();no(t.error);};});}
 }

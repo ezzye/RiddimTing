@@ -14,7 +14,7 @@ assert.ok(!read('app/packs.js').includes('data:audio'));
 const html=read('dist/downloads/RiddimTing.html');
 const scripts=[];let cursor=0;
 while(true){const start=html.indexOf('<script',cursor);if(start<0)break;const tagEnd=html.indexOf('>',start),end=html.indexOf('</script>',tagEnd);assert.ok(end>tagEnd);scripts.push({tag:html.slice(start,tagEnd+1),code:html.slice(tagEnd+1,end)});cursor=end+9;}
-assert.equal(scripts.filter(s=>s.tag.includes('data-source=')).length,5);
+assert.equal(scripts.filter(s=>s.tag.includes('data-source=')).length,6);
 assert.ok(scripts.every(s=>! /\bsrc\s*=/.test(s.tag)));
 const snapshot=JSON.parse(html.match(/<script id="session-snapshot" type="application\/json">([\s\S]*?)<\/script>/)[1]);
 assert.equal(Object.keys(snapshot.samples).length,0);assert.equal(snapshot.projects.length,9);

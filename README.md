@@ -43,3 +43,13 @@ The operation tests do not establish sound quality or hardware parity. Real micr
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Please include a reproducible musical or control sequence, browser version and whether an issue affects live audio, exported audio or both. Do not include personal recordings without permission.
+
+## Private sound banks
+
+Choose **Import sound bank** in Sound desk to load a local `.riddimbank.json` file (maximum 32 MB and 128 WAV samples). The bank adds sounds to **Your samples** without changing pads; select a pad in Easy studio and choose its sound there. Reimporting identical sounds skips them, while changed sounds receive a separate ID. Undo can remove an imported batch. Back up the project to retain the sounds.
+
+A version 1 bank is JSON with `format: "riddimting-soundbank"`, `version: 1`, an `id`, a `name`, optional `provenance` and `license`, and a `samples` array. Each sample has `id`, `name`, and embedded `data:audio/wav;base64,...`; optional `rootNote` (0–127), `bpm` (40–399), `category`, and `source` are retained as metadata. IDs use letters, numbers, underscores or hyphens. Audio is decoded locally and remains in this browser on this device unless you export or share it. Provenance and ownership information is supplied by the bank creator and is not independently verified. Root note and BPM are retained as metadata; they do not automatically set pad MIDI root, tune or loop BPM. Imported audio is not automatically licensed for redistribution: check its terms before sharing a bank, project backup or saved HTML, which can contain the audio.
+
+### Standalone snapshots
+
+Each saved HTML snapshot opens in its own saved workspace, separate from the hosted app and other snapshots. Sessions, sounds and Ting settings are stored together. If a stored snapshot cannot be read, autosave is disabled for that open copy to protect its existing data; export a project backup before closing. Browser storage can still be cleared, so retain portable backups.

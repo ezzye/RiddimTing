@@ -6,7 +6,7 @@ const root=path.resolve(import.meta.dirname,'..'), out=path.join(root,'dist');
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(path.join(out,'downloads'),{recursive:true});
 for(const n of ['LICENSE','THIRD_PARTY.md','ASSETS.md'])fs.copyFileSync(path.join(root,n),path.join(out,n==='LICENSE'?'LICENSE.txt':n));
 fs.cpSync(path.join(root,'site'),out,{recursive:true});fs.cpSync(path.join(root,'app'),path.join(out,'app'),{recursive:true});
-const names=['session.js','engine.js','packs.js','ting-config.js','app.js'], assets=[...names,'style.css'];
+const names=['session.js','engine.js','packs.js','ting-config.js','bank.js','app.js'], assets=[...names,'style.css'];
 const read=n=>fs.readFileSync(path.join(root,'app',n),'utf8');
 const hashes=Object.fromEntries(assets.map(n=>[n,crypto.createHash('sha256').update(read(n)).digest('hex')]));
 const release=crypto.createHash('sha256').update(JSON.stringify(hashes)).digest('hex').slice(0,12);
