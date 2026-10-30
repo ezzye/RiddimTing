@@ -1,0 +1,11 @@
+dist/
+node_modules/
+.DS_Store
+*.log
+*.riddim.json
+.env
+.env.*
+!.env.example
+.sites-runtime/
+.sites-checkout*/
+tests/integration-results.json

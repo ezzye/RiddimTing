@@ -1,0 +1,25 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+const root=path.resolve(import.meta.dirname,'..'), read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const ctx={window:null};ctx.window=ctx;vm.createContext(ctx);
+for(const n of ['session.js','ting-config.js','packs.js'])vm.runInContext(read('app/'+n),ctx);
+assert.equal(vm.runInContext('Object.keys(new RiddimSession().sampleData).length',ctx),0);
+assert.equal(vm.runInContext('new RiddimSession().ting',ctx),null);
+assert.equal(ctx.OFFICIAL_PACKS,undefined);
+assert.equal(Object.keys(ctx.TING_PACKS).length,1);
+vm.runInContext('for(const p of Object.values(TING_PACKS))new TingRack({ctx:null}).load(p)',ctx);
+assert.ok(!read('app/packs.js').includes('data:audio'));
+const html=read('dist/downloads/RiddimTing.html');
+const scripts=[];let cursor=0;
+while(true){const start=html.indexOf('<script',cursor);if(start<0)break;const tagEnd=html.indexOf('>',start),end=html.indexOf('</script>',tagEnd);assert.ok(end>tagEnd);scripts.push({tag:html.slice(start,tagEnd+1),code:html.slice(tagEnd+1,end)});cursor=end+9;}
+assert.equal(scripts.filter(s=>s.tag.includes('data-source=')).length,5);
+assert.ok(scripts.every(s=>! /\bsrc\s*=/.test(s.tag)));
+const snapshot=JSON.parse(html.match(/<script id="session-snapshot" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+assert.equal(Object.keys(snapshot.samples).length,0);assert.equal(snapshot.projects.length,9);
+assert.ok(!html.includes('official-new-shouts/'));
+for(const s of scripts.filter(s=>s.tag.includes('data-source=')))new vm.Script(s.code);
+const shell=read('dist/app/sw.js');assert.ok(shell.includes('packs.js?v='));
+for(const p of ['dist/index.html','dist/guide.html','dist/app/index.html'])assert.ok(read(p).includes('<!doctype html>'));
+console.log('Public release checks passed: original configs, no bundled WAVs, clean snapshot, inline runtime and offline shell.');
