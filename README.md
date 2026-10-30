@@ -30,7 +30,7 @@ Your sessions and recordings stay in browser storage unless you download or shar
 
 `app/` contains the buildless Web Audio instrument. `site/` contains the Baby Freakout page and HTML guide. `scripts/build.mjs` produces `dist/`, versions the offline cache, and creates `dist/downloads/RiddimTing.html` with a clean demo snapshot. Build output is ignored by Git. `.openai/hosting.json` identifies the static hosting project; it contains no credentials.
 
-CI runs deterministic operation tests and public-release checks, then builds a downloadable website artifact. Hosting publication is performed through Sites' source/version deployment workflow; GitHub CI alone does not publish a new hosted version.
+CI runs deterministic operation tests and public-release checks, then builds a downloadable website artifact. Successful pushes to `main` publish that artifact to GitHub Pages at babyfreakout.com. Pull requests run checks without publishing. The earlier Sites deployment remains a fallback mirror; `.openai/hosting.json` retains its identity for deliberate mirror updates.
 
 ## Fidelity and licences
 
