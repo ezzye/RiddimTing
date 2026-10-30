@@ -6,7 +6,7 @@ const root=path.resolve(import.meta.dirname,'..'), out=path.join(root,'dist');
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(path.join(out,'downloads'),{recursive:true});
 for(const n of ['LICENSE','THIRD_PARTY.md','ASSETS.md'])fs.copyFileSync(path.join(root,n),path.join(out,n==='LICENSE'?'LICENSE.txt':n));
 fs.cpSync(path.join(root,'site'),out,{recursive:true});fs.cpSync(path.join(root,'app'),path.join(out,'app'),{recursive:true});
-const names=['session.js','engine.js','packs.js','ting-config.js','bank.js','app.js'], assets=[...names,'style.css'];
+const names=['bank.js','sound-library.js','session.js','engine.js','packs.js','ting-config.js','app.js'], assets=[...names,'style.css'];
 const read=n=>fs.readFileSync(path.join(root,'app',n),'utf8');
 const hashes=Object.fromEntries(assets.map(n=>[n,crypto.createHash('sha256').update(read(n)).digest('hex')]));
 const release=crypto.createHash('sha256').update(JSON.stringify(hashes)).digest('hex').slice(0,12);
@@ -18,7 +18,7 @@ let sw=read('sw.js').replace(/const CACHE='[^']+';/,`const CACHE='riddim-private
 fs.writeFileSync(path.join(out,'app/sw.js'),sw);
 let html=index.replace(/<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>/g,'').replace(/<link rel="stylesheet"[^>]*>/,()=>'<style>'+read('style.css')+'</style>');
 for(const n of names)html=html.replace(new RegExp('<script src="'+n.replace('.','\\.')+'[^\"]*"></script>'),()=>'<script data-source="'+n+'">'+read(n).replaceAll('</script','<\\/script')+'</script>');
-const context={window:null};context.window=context;vm.createContext(context);vm.runInContext(read('session.js'),context);
+const context={window:null};context.window=context;vm.createContext(context);vm.runInContext(read('bank.js'),context);vm.runInContext(read('sound-library.js'),context);vm.runInContext(read('session.js'),context);
 const snapshot=vm.runInContext('new RiddimSession().serialize()',context);
 html=html.replace('</head>',()=>'<script id="session-snapshot" type="application/json">'+snapshot.replaceAll('<','\\u003c')+'</script></head>');
 fs.writeFileSync(path.join(out,'downloads/RiddimTing.html'),html);

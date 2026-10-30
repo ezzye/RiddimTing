@@ -7,7 +7,7 @@
   "engines": {"node": ">=22"},
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node tests/integration.test.mjs && node tests/release.test.mjs",
+    "test": "node tests/integration.test.mjs && node tests/hosted.test.mjs && node tests/release.test.mjs",
     "start": "python3 -m http.server 4380 --bind 127.0.0.1 --directory dist"
   }
 }

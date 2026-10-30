@@ -1,6 +1,6 @@
 # Sources and third-party material
 
-RiddimTing's runtime has no external JavaScript, font, image or audio dependencies. Its sounds are synthesized by the authored Web Audio engine. The Night Shift configuration and Baby Freakout SVG artwork were created for this project. Two original fictional club images were generated with OpenAI’s built-in image tool; see ASSETS.md for prompts and provenance. They depict no identified real people.
+RiddimTing's runtime has no external JavaScript or font dependencies. The app includes synthesized sounds and 39 recreated sample cuts generated with Suno and Moises. The audio is separate from the MIT-licensed code: personal music-making in Baby Freakout is permitted; redistribution of raw sample assets is not granted by this project. See ASSETS.md and the providers' terms. The Night Shift configuration and Baby Freakout SVG artwork were created for this project. Two original fictional club images were generated with OpenAI’s built-in image tool; see ASSETS.md for prompts and provenance. They depict no identified real people.
 
 Behavioural references:
 

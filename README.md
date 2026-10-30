@@ -19,7 +19,7 @@ Open http://127.0.0.1:4380 and choose **Make some noise**. Audio starts after a 
 ## Make music
 
 - 9 sessions, 4 groups × 12 pads, patterns, scenes, song arrangement, live overdub and step editing.
-- 46 recreated synthesis presets, keys/scales, repeat/arpeggio, sample import/capture, chop, stretch and resampling.
+- 46 recreated synthesis presets and 39 hosted recreated samples, keys/scales, repeat/arpeggio, sample import/capture, chop, stretch and resampling.
 - Seven send effects, twelve reconstructed punch controls, automation, loop performance, sidechain and output compression.
 - Ting voice processing, four sample slots, and editable/importable JSON effect chains.
 - Local project backup, WAV rendering, performance recording, and a portable HTML instrument.
@@ -36,7 +36,7 @@ CI runs deterministic operation tests and public-release checks, then builds a d
 
 This independent project is inspired by the EP–40 and Ting workflow. It is not affiliated with or endorsed by Teenage Engineering. Hardware names are used only to identify the reference devices. It is a functional reconstruction, **not a certified 1:1 emulation**. Factory waveforms, artist projects, exact DSP, hardware button combinations and physical connections are not reproduced identically.
 
-Authored code, synthesis recipes, configurations, artwork and documentation are MIT licensed. **No manufacturer WAVs, factory bank, artist projects, logos or copied configuration packs are distributed.** Users may download and locally import sounds/configurations subject to their own terms. See [THIRD_PARTY.md](THIRD_PARTY.md).
+Authored code, synthesis recipes, configurations, artwork and documentation are MIT licensed. The 39 hosted Suno and Moises recreations have separate terms: personal music-making in Baby Freakout is permitted; redistribution of the raw sample assets is not granted by this project. **No manufacturer WAVs, factory bank, artist projects, logos or copied configuration packs are distributed.** Users may download and locally import sounds/configurations subject to their own terms. See [THIRD_PARTY.md](THIRD_PARTY.md).
 
 The operation tests do not establish sound quality or hardware parity. Real microphone/MIDI hardware, phone/tablet use, native installation and owner listening acceptance remain device checks. Web MIDI support varies by browser. Background tabs and locked/mobile devices can throttle audio and timing.
 

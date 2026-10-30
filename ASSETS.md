@@ -9,3 +9,7 @@ Prompt: Use case: ads-marketing. Asset type: landscape website photograph-style 
 ## sound-system.jpg
 
 Prompt: Use case: ads-marketing. Asset type: wide website atmosphere image for Baby Freakout dance music tool. Original editorial music photograph of a small underground dub and dance sound-system party: two tall stacked vintage black speaker cabinets in the foreground, a disco ball catching pink and acid-lime light overhead, soft silhouettes of adult dancers and haze in the background, dark plum and electric magenta tones. Tangible worn speaker cones, cables and warm analogue club feeling. Powerful bass and collective joy, tasteful cinematic 35mm grain, high contrast without losing the speaker detail. Composition wide 3:2, speakers on one side, dancing silhouettes on the other. No text, no logos, no identifiable real persons, no watermark.
+
+## Hosted recreated audio
+
+The instrument includes 39 edited sound cuts generated with Suno and Moises on 30 October 2026. Each sample entry in `app/sound-library.js` identifies the provider and the processed WAV SHA-256. They are recreations, not manufacturer factory recordings. The MIT code licence does not apply to this audio: personal music-making in Baby Freakout is permitted, while redistribution of the raw sample assets is not granted by this project. No copyright or exclusivity claim is made. See [Suno terms](https://suno.com/terms) and [Moises terms](https://moises.ai/terms/).
